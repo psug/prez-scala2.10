@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+	<meta name="viewport" content="width=1024, user-scalable=no">
+
+	<title>Scala 2.10</title>
+	
+	<!-- Required stylesheet -->
+	<link rel="stylesheet" href="core/deck.core.css">
+	
+	<!-- Extension CSS files go here. Remove or add as needed. -->
+	<link rel="stylesheet" href="extensions/goto/deck.goto.css">
+	<link rel="stylesheet" href="extensions/menu/deck.menu.css">
+	<link rel="stylesheet" href="extensions/navigation/deck.navigation.css">
+	<link rel="stylesheet" href="extensions/status/deck.status.css">
+	<link rel="stylesheet" href="extensions/hash/deck.hash.css">
+	<link rel="stylesheet" href="extensions/scale/deck.scale.css">
+
+	<!-- Style theme. More available in /themes/style/ or create your own. -->
+	<link rel="stylesheet" href="themes/style/marakana.css">
+	
+	<!-- Transition theme. More available in /themes/transition/ or create your own. -->
+	<link rel="stylesheet" href="themes/transition/horizontal-slide.css">
+
+
+	<!-- Codemirror. -->
+	<link rel="stylesheet" href="extensions/codemirror/deck.codemirror.css">
+	<link rel="stylesheet" href="extensions/codemirror/themes/default.css">
+	
+	<!-- Required Modernizr file -->
+	<script src="modernizr.custom.js"></script>
+	<script src="extensions/hash/deck.hash.js"></script>
+
+
+
+
+	<link rel="stylesheet" href="solarized_light.css">
+	<script src="highlight.pack.js"></script>
+
+	<script>
+	$(document).ready(function() {
+		$.deck('.slide');
+		$('pre').each(function(i, e) {
+			hljs.highlightBlock(e, '  ');
+		});
+	});
+	</script>
+
+
+</head>
+<body class="deck-container deck-codemirror">
+
+<!-- Begin slides. Just make elements with a class of slide. -->
+
+<section class="slide" style="font-size:1.5em;">
+	<h1>Scala 2.10</h1>
+</section>
+
+
+<section class="slide">
+	<h2>Qui sommes nous ?</h2>
+	<br /> <br />
+	<h3>Alexis Agahi<br />DEV @ kyriba.com</h3>
+	<h3>Jonathan Winandy<br/>DEV @ Lateral Thoughts</h3>
+</section>
+
+<section class="slide" style="font-size:1.5em;">
+  <h1>Quoi de neuf dans Scala 2.10 ???</h1>
+</section>
+
+
+
+<section class="slide">
+  <h2>Deprecations and cleanup</h2>
+  <ul>
+    <li>Floating point and octal literal syntax deprecation</li>
+    <li>Removal of package scala.dbc (database connection)</li>
+  <ul>
+<br/>
+<br/>
+<div id="code" name="code" class="code" mode="javascript" style="display: none;">
+scala&#155; 1 + 2
+res0: Int = 3
+
+scala&#155; 1.+(2)
+res1: Double = 3.0
+
+scala&#155; 012
+res2: Int = 10
+</div>
+
+</section>
+
+<section class="slide">
+  <h2>Performance Improvements</h2>
+  <ul>
+    <li>Improved Pattern Matcher</li>
+    <li>Faster inliner</li>
+    <li>Range#sum is now O(1)</li>
+    <li>Update of ForkJoin library</li>
+    <li>Fixes in immutable TreeSet/TreeMap</li>
+    <li>Improvements to PartialFunctions</li>
+  <ul>
+</section>
+
+<section class="slide">
+<h2>Misc.</h2>
+   <h3>Scaladoc Improvements</h3>
+  <p>
+     Implicits (-implicits flag) ; 
+    Diagrams (-diagrams flag, requires graphviz) ;
+    Groups (-groups)</p>
+  <ul>
+
+
+  <h3>New ByteCode emitter based on ASM</h3>
+  <p>
+      Can target JDK 1.5, 1.6 and 1.7;
+   Emits 1.6 bytecode by default;
+   Old 1.5 backend is deprecated</p>
+  <ul>
+
+  <h3>MetaMisc.</h3>
+  <ul>
+    <li>Addition of ??? and NotImplemented Error</li>
+    <li>Addition of IsTraversableOnce + IsTraversableLike type classes for extension methods</li>
+  <ul>
+
+
+<div id="code" name="code" class="code" mode="javascript" style="display: none;">
+scala&#155; def toBeImpl() = ???
+toBeImpl: ()Nothing
+
+scala&#155; toBeImpl()
+scala.NotImplementedError: an implementation is missing
+</section>
+
+
+
+<section class="slide">
+  <h2>Akka Actors now included in distribution</h2>
+  <ul>
+    <li>Scala actors library deprecated in favor of Akka</li>
+    <li>Actors migration library included to ease migration from Scala -> Akka</li>
+  <ul>
+</section>
+
+
+
+<section class="slide">
+  <h2><a href="http://docs.scala-lang.org/overviews/core/futures.html">Futures and Promises</a></h2>
+  <div id="code" name="code" class="code" mode="javascript" style="display: none;">
+val f: Future[List[String]] = future {
+  session.getRecentPosts
+}
+f onComplete {
+  case Success(posts) ⇒ for (post &#x2039;- posts) println(post)
+  case Failure(t) ⇒ println("An error has occured: " + t.getMessage)
+}
+</div>
+ <div id="code" name="code" class="code" mode="javascript" style="display: none;">
+//promise can be thought of as a writeable, single-assignment container, which completes a future
+val p = promise[T]
+val f = p.future
+
+val producer = future {
+  val r = produceSomething()
+  p success r
+  continueDoingSomethingUnrelated()
+}
+
+val consumer = future {
+  startDoingSomething()
+  f onSuccess {
+    case r ⇒ doSomethingWithResult()
+  }
+}
+</div>
+
+</section>
+
+<section class="slide">
+  <h2><a href="http://docs.scala-lang.org/overviews/parallel-collections/overview.html">Parallel Collections are now configurable with custom thread pools</a></h2>
+
+ <div id="code" name="code" class="code" mode="javascript" style="display: none;">
+  val pc = mutable.ParArray(1, 2, 3)
+  pc.tasksupport = new ThreadPoolTaskSupport( new MyCustomThreadPool() )
+</div>
+</section>
+
+
+
+
+<section class="slide">
+  <h2><a href="http://docs.scala-lang.org/sips/pending/modularizing-language-features.html">Modularized Language features</a> ;)</h2>
+
+<div id="code" name="code" class="code" mode="javascript" style="display: none;">       
+object languageFeature {
+  trait dynamics 
+  trait postfixOps 
+  trait reflectiveCalls
+  trait implicitConversions 
+  trait higherKinds 
+  trait existentials
+  object experimental {
+    trait macros
+  }
+}
+object language {
+  import languageFeature._
+  implicit val macros: macros = _
+  implicit val dynamics: dynamics = _ 
+  implicit val postfixOps: postfixOps = _ 
+  implicit val reflectiveCalls: reflectiveCalls = _
+  implicit val implicitConversions: implicitConversions = _
+  implicit val higherKinds: higherKinds = _
+  implicit val existentials: existentials = _
+  object experimental {
+    implicit val macros: macros = _
+  }  
+}
+</div>
+
+<div id="code" name="code" class="code" mode="javascript" style="display: none;">       
+// to enable the a feature, an implicit value of the feature type must be available
+// which would typically happen with a named import from the language object
+
+import language.experimental.macros
+import language.{reflectiveCalls, existentials}
+</section>
+
+
+
+<section class="slide">
+  <h2><a href="http://docs.scala-lang.org/sips/pending/value-classes.html">Value Classes</a></h2>
+<h3>Value classes can get completely inlined, so operations on these classes have zero overhead compared to external methods.</h2>
+<!--
+<ul>
+<li>must have exactly one parameter, which is marked with val and which has public accessibility</li>
+<li>may not have @specialized type parameters</li>
+<li>the underlying type may not be a value class</li>
+<li>may not define equals or hashCode methods</li>
+<li>may not have secondary constructors</li>
+<li>must be either a toplevel class or a member of a statically accessible object</li>
+<li>may not declare fields (other than the parameter of a value class)</li>
+<li>may not contain object definition</li>
+<li>may not have initialization statements</li>
+</ul>
+-->
+<div id="code" name="code" class="code" mode="javascript" style="display: none;">       
+class Meter(val underlying: Double) extends AnyVal with Printable {
+  def plus (other: Meter): Meter = 
+    new Meter(this.underlying + other.underlying)
+  def divide (factor: Double): Meter = new Meter(this.underlying / factor)
+  override def toString: String = underlying.toString + “m”
+}
+
+trait Printable extends Any { def print: Unit = Console.print(this) }
+</div>
+
+</section>
+
+<section class="slide">
+  <h2><a href="http://docs.scala-lang.org/sips/pending/implicit-classes.html">Implicit Classes</a></h2>
+
+<div id="code" name="code" class="code" mode="javascript" style="display: none;">       
+implicit class MagicString( s:String ){
+  def magicNumber = s.length * 13
+}
+</div>
+<div id="code" name="code" class="code" mode="javascript" style="display: none;">       
+// will be transformed by the compiler as follows
+class MagicString( s:String ){
+  def magicNumber = s.length * 13
+}
+implicit final def SmartString( s:String ): MagicString = new MagicString(s)
+</div>
+<div id="code" name="code" class="code" mode="javascript" style="display: none;">       
+"duck duck".magicNumber
+res0: Int = 117
+</div>
+</section>
+
+
+<section class="slide">
+<h2>Interpolation de chaînes</h2>
+<div id="code" name="code" class="code" mode="javascript" style="display: none;">
+val duke = "Duke"
+println(s"Bonjour ${duke} !")
+// Bonjour Duke !
+</div>
+</section>
+
+
+
+
+<section class="slide">
+	<h2><a href="http://docs.scala-lang.org/sips/pending/type-dynamic.html"></a>Dynamic</a></h2>
+
+	<h3>Permet d'avoir du typage dynamique sur certaines expressions :</h3>
+
+<div id="code" name="code" class="code" mode="javascript" style="display: none;">       
+import language.dynamics
+
+class MyDynamic extends Dynamic {
+
+  case class DynamicDuke(start:String) {
+    def apply(args: Any*):String =  {
+      start + args.toList.map(_.toString).mkString(" ")
+    }
+  }
+
+  def applyDynamic(method:String) : DynamicDuke = DynamicDuke(selectDynamic(method))
+
+  def selectDynamic(method:String): String=  "Duke: I "+ method
+
+}
+</div>
+</section>
+
+<section class="slide">
+
+<h2>DukeTyping !</h2>
+<div id="background" style="
+    width: 100%; 
+    height: 100%; 
+    position: absolute; 
+    right: 0px; 
+    top: 0px; 
+    z-index: -1;">
+    <img src="img/duck.png" style="width:100%;
+    height:100%;opacity:1;" alt="" />
+</div>
+
+</section>
+
+
+
+
+
+
+
+
+<section class="slide">
+<h2>Reflexivité & Macro</h2>
+
+<h3>Refactoring du compilateur: découpage en couches.</h3>
+<h3>Réflexivité : manipulation de l'arbre syntaxique au <em>runtime</em>.</h3>
+<h3>Macro : manipulation de l'arbre syntaxique à la <em>compilation</em>.</h3>
+<h3></h3>
+
+</section>
+
+<section class="slide">
+
+	<h2>MetaProgramming !</h2>
+
+	<div id="background" style="
+    width: 100%; 
+    height: 100%; 
+    position: absolute; 
+    right: 0px; 
+    top: 0px; 
+    z-index: -1;">
+    <img src="img/oliphant.jpeg" style="width:100%;
+    height:100%;opacity:1;" alt="" />
+</div>
+
+
+</section>
+
+
+
+
+
+
+
+
+<section class="slide">
+	<h1>Questions ? </h1>
+</section>
+
+<!-- End slides. -->
+
+
+<!-- Begin extension snippets. Add or remove as needed. -->
+
+<!-- deck.navigation snippet -->
+<a href="#" class="deck-prev-link" title="Previous">&#8592;</a>
+<a href="#" class="deck-next-link" title="Next">&#8594;</a>
+
+<!-- deck.status snippet -->
+<p class="deck-status">
+	<span class="deck-status-current"></span>
+	/
+	<span class="deck-status-total"></span>
+</p>
+
+<!-- deck.goto snippet -->
+<form action="." method="get" class="goto-form">
+	<label for="goto-slide">Go to slide:</label>
+	<input type="text" name="slidenum" id="goto-slide" list="goto-datalist">
+	<datalist id="goto-datalist"></datalist>
+	<input type="submit" value="Go">
+</form>
+
+<!-- deck.hash snippet -->
+<a href="." title="Permalink to this slide" class="deck-permalink">#</a>
+
+<!-- End extension snippets. -->
+
+
+<!-- Required JS files. -->
+<script src="jquery-1.7.2.min.js"></script>
+<script src="core/deck.core.js"></script>
+
+<!-- Extension JS files. Add or remove as needed. -->
+<script src="core/deck.core.js"></script>
+<script src="extensions/hash/deck.hash.js"></script>
+<script src="extensions/menu/deck.menu.js"></script>
+<script src="extensions/goto/deck.goto.js"></script>
+<script src="extensions/status/deck.status.js"></script>
+<script src="extensions/navigation/deck.navigation.js"></script>
+<script src="extensions/scale/deck.scale.js"></script>
+
+<!-- Base codemiror code -->
+<script src="extensions/codemirror/codemirror.js"></script>
+
+<!-- Syntax highlighting Modes -->
+
+<!-- javascript -->
+<script src="extensions/codemirror/mode/javascript/javascript.js"></script>
+
+<!-- Plugin code -->
+<script src="extensions/codemirror/deck.codemirror.js"></script>
+
+
+
+<!-- Initialize the deck. You can put this in an external file if desired. -->
+<script>
+	$(function() {
+		$.deck('.slide');
+	});
+</script>
+</body>
+</html>
